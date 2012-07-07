@@ -51,6 +51,8 @@ usage(const char *argv0) {
   fprintf(stderr, "  -4: upsample 4x before thresholding\n");
   fprintf(stderr, "  -S: remove images from mixed input and save separately\n");
   fprintf(stderr, "  -j --jpeg-output: write images from mixed input as JPEG\n");
+  fprintf(stderr, "  -a --autoThresh: engage using autoThresholding for symbol coder\n");
+  fprintf(stderr, "  -nohash: only for debugging purposes to allow easily compare performance with older version\n");
   fprintf(stderr, "  -v: be verbose\n");
 }
 
@@ -206,6 +208,9 @@ main(int argc, char **argv) {
   const char *img_ext = "png";
   bool segment = false;
   int i;
+  bool autoThresh = false;
+  bool hash = true;
+
 
   for (i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "-h") == 0 ||
@@ -310,6 +315,19 @@ main(int argc, char **argv) {
       i++;
       continue;
     }
+
+    // engage auto thresholding
+    if (strcmp(argv[i], "-autoThresh") == 0 || 
+        strcmp(argv[i], "-a") == 0 ) {
+      autoThresh = true;
+      continue;
+    }
+
+    if (strcmp(argv[i], "-nohash") == 0) {
+      hash = false;
+      continue;
+    }
+
 
     if (strcmp(argv[i], "-v") == 0) {
       verbose = true;
@@ -437,6 +455,15 @@ main(int argc, char **argv) {
       i++;
     }
   }
+
+  if (autoThresh) {
+    if (hash) {
+      autoThresholdUsingHash(ctx);
+    } else {
+      autoThreshold(ctx);
+    }
+  }
+
 
   uint8_t *ret;
   int length;
