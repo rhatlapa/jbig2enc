@@ -1,5 +1,5 @@
 // Copyright 2006 Google Inc. All Rights Reserved.
-// Author: agl@imperialviolet.org (Adam Langley)
+// Author: hata.radim@gmail.com (Radim Hatlapatka)
 //
 // Copyright (C) 2006 Google Inc.
 //
