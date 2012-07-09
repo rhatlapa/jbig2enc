@@ -227,16 +227,19 @@ int areEquivalent(PIX * firstTemplate, PIX * secondTemplate) {
 
   l_uint32 initUnsigned = 0;
   l_uint32 *pval = &initUnsigned;
-  int divider = 9;
+  const int divider = 9;
+  const int vertical = divider * 2;
+  const int horizontal = divider * 2;
 
 /*
   l_uint32 **parsedPixCounts = allocateMatrix(divider, divider);
   l_uint32 **horizontalParsedPixCounts = allocateMatrix(divider*2, divider);
   l_uint32 **verticalParsedPixCounts = allocateMatrix(divider, divider*2);
 */
+
   l_uint32 parsedPixCounts[divider][divider];
-  l_uint32 horizontalParsedPixCounts[divider*2][divider];
-  l_uint32 verticalParsedPixCounts[divider][divider*2];
+  l_uint32 horizontalParsedPixCounts[horizontal][divider];
+  l_uint32 verticalParsedPixCounts[divider][vertical];
 
   if (d != 1) {
     return 0;
