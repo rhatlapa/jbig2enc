@@ -176,51 +176,6 @@ void printList(std::list<int> &listToPrint) {
  * returns 0 on success and in error number different from zero
  */
 // TODO: find out which is the first index and transfer to this position target char
-int uniteTemplatesOfOneChar(struct jbig2ctx *ctx, int targetCharTemplate,
-    int *charToBeUnited, int n) {
-  if (!ctx) {
-    fprintf(stderr, "ctx not given");
-    return 1;
-  }
-
-  if (!charToBeUnited) {
-    fprintf(stderr, "given no templates for uniting");
-    return 1;
-  }
-
-  if ((targetCharTemplate < 0) ||
-    (targetCharTemplate > pixaGetCount(ctx->classer->pixat))) {
-    fprintf(stderr, "targetCharTemplate out of range");
-    return 1;
-  }
-  for (int i = 0; i < n; i++) {
-    int secondTemplate = charToBeUnited[i];
-    if ((secondTemplate < 0) ||
-    (secondTemplate > pixaGetCount(ctx->classer->pixat))) {
-      fprintf(stderr, "charToBeUnited[%d] out of range", i);
-      return 1;
-    }
-    reindexing(ctx, targetCharTemplate, secondTemplate);
-    pixChangeRefcount(ctx->classer->pixat->pix[targetCharTemplate],pixGetRefcount(ctx->classer->pixat->pix[secondTemplate]));
-  }
-
-  return 0;
-}
-
-
-/**
- * unites templates of the same character to chosen charater template
- * *ctx ............... structure containing templates of symbols
- * targetChar ......... char that will remain (united char will be replaced by
- *          this char
- * *charToBeUnited .... array of indexes to templates that should be replaced 
- *          by targetCharTemplate
- *
- * n .................. number of templates to be united
- *
- * returns 0 on success and in error number different from zero
- */
-// TODO: find out which is the first index and transfer to this position target char
 int uniteTemplatesInTheList(struct jbig2ctx *ctx, int newRepresentant, list<int> &templatesToBeUnited) {
   if (!ctx) {
     fprintf(stderr, "ctx not given");

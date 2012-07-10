@@ -52,7 +52,7 @@ usage(const char *argv0) {
   fprintf(stderr, "  -S: remove images from mixed input and save separately\n");
   fprintf(stderr, "  -j --jpeg-output: write images from mixed input as JPEG\n");
   fprintf(stderr, "  -a --autoThresh: engage using autoThresholding for symbol coder\n");
-  fprintf(stderr, "  -nohash: only for debugging purposes to allow easily compare performance with older version\n");
+  fprintf(stderr, "  --nohash: only for debugging purposes to allow easily compare performance with older version\n");
   fprintf(stderr, "  -v: be verbose\n");
 }
 
@@ -317,13 +317,13 @@ main(int argc, char **argv) {
     }
 
     // engage auto thresholding
-    if (strcmp(argv[i], "-autoThresh") == 0 || 
+    if (strcmp(argv[i], "--autoThresh") == 0 || 
         strcmp(argv[i], "-a") == 0 ) {
       autoThresh = true;
       continue;
     }
 
-    if (strcmp(argv[i], "-nohash") == 0) {
+    if (strcmp(argv[i], "--nohash") == 0) {
       hash = false;
       continue;
     }

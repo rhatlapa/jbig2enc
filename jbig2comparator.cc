@@ -176,7 +176,7 @@ void printPix(PIX *pix) {
  * if the difference is bigger than concrete percentage of one of templates than these templates 
  * if such difference doesn't exist than they are equivalent
  */
-int areEquivalent(PIX * firstTemplate, PIX * secondTemplate) {
+int areEquivalent(PIX *const firstTemplate, PIX *const secondTemplate) {
   //char * result;
   //recognizeLetter(firstTemplate, result);
 
