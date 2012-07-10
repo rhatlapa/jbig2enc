@@ -137,13 +137,11 @@ jbig2_init(float thresh, float weight, int xres, int yres, bool full_headers,
 }
 
 // causes stack overflow
-void reindexing(struct jbig2ctx *ctx, int newIndex, int oldIndex) {
+void reindexing(struct jbig2ctx *ctx, int const newIndex, int const oldIndex) {
   if (!ctx) {
     fprintf(stderr, "ctx not given");
     return;
   }
-  fprintf(stderr, "reindexing started");
-
 
   for (int i = 0; i < numaGetCount(ctx->classer->naclass); i++) {
     int n;
@@ -152,7 +150,6 @@ void reindexing(struct jbig2ctx *ctx, int newIndex, int oldIndex) {
       numaSetValue(ctx->classer->naclass, i, newIndex);
     }
   }
-  fprintf(stderr, "reindexing successfull\n");
 }
 
 void printList(std::list<int> &listToPrint) {
@@ -193,7 +190,7 @@ int uniteTemplatesInTheList(struct jbig2ctx *ctx, int newRepresentant, list<int>
 
   // check if newRepresentant exists
   if ((newRepresentant < 0) ||
-    (newRepresentant > pixaGetCount(ctx->classer->pixat))) {
+    (newRepresentant >= pixaGetCount(ctx->classer->pixat))) {
     fprintf(stderr, "new representant template out of range");
     return 1;
   }
@@ -204,7 +201,7 @@ int uniteTemplatesInTheList(struct jbig2ctx *ctx, int newRepresentant, list<int>
     // first checking if the second template exists
     int secondTemplate = (*it);
     if ((secondTemplate < 0) ||
-    (secondTemplate > pixaGetCount(ctx->classer->pixat))) {
+    (secondTemplate >= pixaGetCount(ctx->classer->pixat))) {
       fprintf(stderr, "template: %d out of range", (*it));
       return 1;
     }
@@ -319,14 +316,6 @@ int uniteTemplatesWithIndexes(struct jbig2ctx *ctx, int firstTemplateIndex, int 
   pixWrite(secondbuf, ctx->classer->pixat->pix[secondTemplateIndex], IFF_PNG);
 */
 
-  //reindexing(ctx, secondTemplateIndex, firstTemplateIndex);
-  for (int i = 0; i < ctx->classer->naclass->n; i++) {
-    int n;
-    numaGetIValue(ctx->classer->naclass, i, &n);
-    if (n == secondTemplateIndex) {
-      numaSetValue(ctx->classer->naclass, i, firstTemplateIndex);
-    }
-  }
   //reindexing(ctx, secondTemplateIndex, firstTemplateIndex);
   for (int i = 0; i < ctx->classer->naclass->n; i++) {
     int n;
