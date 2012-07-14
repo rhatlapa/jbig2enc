@@ -52,6 +52,9 @@ usage(const char *argv0) {
   fprintf(stderr, "  -S: remove images from mixed input and save separately\n");
   fprintf(stderr, "  -j --jpeg-output: write images from mixed input as JPEG\n");
   fprintf(stderr, "  -a --autoThresh: engage using autoThresholding for symbol coder\n");
+  fprintf(stderr, "  -useOcr: engages using autoThresholding with usage of OCR engine (actually tesseract used) -- not fully implemented yet; requires option autoThresh enabled\n");
+  fprintf(stderr, "  -lang <lang>: used by -useOcr; allows to set language in format which uses OCR engine (it should be given in appropriate format (def: eng)\n");
+  fprintf(stderr, "  -ff: used only with option -useOcr and forces OCR usage even for images with unknown image resolution\n");
   fprintf(stderr, "  --nohash: only for debugging purposes to allow easily compare performance with older version\n");
   fprintf(stderr, "  -v: be verbose\n");
 }
@@ -210,6 +213,10 @@ main(int argc, char **argv) {
   int i;
   bool autoThresh = false;
   bool hash = true;
+  bool useOcr = false;
+  char *lang = "eng";
+  bool forceOcr = false;
+
 
 
   for (i = 1; i < argc; ++i) {
@@ -328,6 +335,24 @@ main(int argc, char **argv) {
       continue;
     }
 
+    if (strcmp(argv[i], "--useOcr") == 0) {
+      useOcr = true;
+      continue;
+    }
+
+    if (strcmp(argv[i], "-ff") == 0) {
+      forceOcr = true;
+      continue;
+    }
+
+    if ((strcmp(argv[i], "-l") == 0) || 
+      strcmp(argv[i], "--lang") == 0) {
+      i++;
+      if (i < argc) {
+        lang = argv[i];
+      }
+      continue;
+    }
 
     if (strcmp(argv[i], "-v") == 0) {
       verbose = true;
@@ -357,6 +382,7 @@ main(int argc, char **argv) {
   struct jbig2ctx *ctx = jbig2_init(threshold, 0.5, 0, 0, !pdfmode, refine ? 10 : -1);
   int pageno = -1;
 
+  l_int32 dpiResolution = 0; // added by RH
   int numsubimages=0, subimage=0, num_pages = 0;
   while (i < argc) {
     if (subimage==numsubimages) {
@@ -414,6 +440,11 @@ main(int argc, char **argv) {
     if (verbose)
       pixInfo(pixt, "thresholded image:");
 
+    // added for computing resolution for further usage added by Radim Hatlapatka (hata.radim@gmail.com)
+    if (pixt->xres > dpiResolution) {
+      dpiResolution = pixt->xres;
+    }
+
     if (output_threshold) {
       pixWrite(output_threshold, pixt, IFF_PNG);
     }
@@ -457,13 +488,25 @@ main(int argc, char **argv) {
   }
 
   if (autoThresh) {
-    if (hash) {
+    if (hash && !useOcr) {
       autoThresholdUsingHash(ctx);
-    } else {
+    }
+    if (!hash && !useOcr) {
       autoThreshold(ctx);
     }
+    if (useOcr) {
+      if ((dpiResolution == 0 && forceOcr) || dpiResolution >= 200) {
+        fprintf(stderr, "Using hash and OCR\n");
+        if (threshold > 0.86) {
+          autoThresholdUsingHash(ctx);
+        }
+        autoThresholdUsingHashAndOCR(ctx, lang);
+      } else {
+        fprintf(stderr, "Quality of input image is not good enough for OCR (%d < 200 dpi) => running without OCR)", dpiResolution);
+        autoThresholdUsingHash(ctx);
+      }
+    }
   }
-
 
   uint8_t *ret;
   int length;

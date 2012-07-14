@@ -151,5 +151,12 @@ void autoThreshold(struct jbig2ctx *ctx);
 // -------------------------------------------------------------------------------
 void autoThresholdUsingHash(struct jbig2ctx *ctx);
 
+/*
+ * Uses OCR in order to count difference between two templates and its results
+ * are used to decide which of the representants is better and thus improving 
+ * output image quality
+ */
+void autoThresholdUsingHashAndOCR(struct jbig2ctx *ctx, char * lang);
+
 
 #endif  // JBIG2ENC_JBIG2_H__
