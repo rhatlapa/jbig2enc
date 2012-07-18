@@ -1,10 +1,15 @@
+autom4te*
 test*
 *.o
 *.a
 *.lo
 *.la
 Makefile
-jbig2
+/libtool
+/src/.libs
+/src/jbig2
+Debug*
+Release*
 *.suo
 *.ncb
 *.user
@@ -12,7 +17,6 @@ jbig2
 *.png
 *.jpg
 *.jb2
-*.jb
 *.tiff
 *.tif
 *.exe
