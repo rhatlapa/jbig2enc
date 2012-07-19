@@ -141,7 +141,7 @@ jbig2_init(float thresh, float weight, int xres, int yres, bool full_headers,
 }
 
 // causes stack overflow
-void 
+static void 
 reindexing(struct jbig2ctx *ctx, int const newIndex, int const oldIndex) {
   if (!ctx) {
     fprintf(stderr, "ctx not given");
@@ -157,8 +157,11 @@ reindexing(struct jbig2ctx *ctx, int const newIndex, int const oldIndex) {
   }
 }
 
-void 
-printList(std::list<int> &listToPrint) {
+/**
+ * Function for printing values in list separated by comma
+ */
+static void 
+print_list(std::list<int> &listToPrint) {
   list<int>::iterator printIt;
   for (printIt = listToPrint.begin(); printIt != listToPrint.end(); printIt++) {
     fprintf(stderr, "%d, ",(*printIt));
@@ -179,8 +182,8 @@ printList(std::list<int> &listToPrint) {
  * returns 0 on success and in error number different from zero
  */
 // TODO: find out which is the first index and transfer to this position target char
-int 
-uniteTemplatesInTheList(struct jbig2ctx *ctx, int newRepresentant, list<int> &templatesToBeUnited) {
+static int 
+unite_templates_in_the_list(struct jbig2ctx *ctx, int newRepresentant, list<int> &templatesToBeUnited) {
   if (!ctx) {
     fprintf(stderr, "ctx not given");
     return 1;
@@ -192,7 +195,7 @@ uniteTemplatesInTheList(struct jbig2ctx *ctx, int newRepresentant, list<int> &te
 
 #ifdef UNIFICATION_DEBUGGING
   fprintf(stderr, "Uniting templates to point to template %d:\n", newRepresentant);
-  printList(templatesToBeUnited);
+  print_list(templatesToBeUnited);
 #endif
 
   // check if newRepresentant exists
@@ -226,13 +229,12 @@ uniteTemplatesInTheList(struct jbig2ctx *ctx, int newRepresentant, list<int> &te
 }
 
 
-
 /*
  * ctx .... structure containing PIXA with templates
  * list of templatesToRemove allready sorted
  */
-int 
-removeTemplates(jbig2ctx * ctx, std::list<int> &templatesToRemove) {
+static int 
+remove_templates(jbig2ctx * ctx, std::list<int> &templatesToRemove) {
   if (!ctx) {
     fprintf(stderr, "ctx not given\n");
     return 1;
@@ -245,7 +247,7 @@ removeTemplates(jbig2ctx * ctx, std::list<int> &templatesToRemove) {
 
 #ifdef UNIFICATION_DEBUGGING
   fprintf(stderr, "Removing templates: ");
-  printList(templatesToRemove);
+  print_list(templatesToRemove);
 #endif
 
   std::list<int>::iterator it;
@@ -303,8 +305,8 @@ removeTemplates(jbig2ctx * ctx, std::list<int> &templatesToRemove) {
  * unites two templates to one template by reassigning indexes in numa struct and 
  * replacing deleted template by the last one
  */
-int 
-uniteTemplatesWithIndexes(struct jbig2ctx *ctx, int firstTemplateIndex, int secondTemplateIndex) {
+static int 
+unite_templates_with_indexes(struct jbig2ctx *ctx, int firstTemplateIndex, int secondTemplateIndex) {
   if (!ctx) {
     fprintf(stderr, "ctx doesn't exist");
     return 1;
@@ -390,7 +392,7 @@ void auto_threshold(struct jbig2ctx *ctx) {
     // looking just forward, because the operation are_equivalent is symetric
     for (int j = i+1; j < pixaGetCount(jbPixa); j++) {
       if (are_equivalent(jbPix, jbPixa->pix[j])) {
-        uniteTemplatesWithIndexes(ctx, i, j);
+        unite_templates_with_indexes(ctx, i, j);
         j--;
       }
     }
@@ -398,8 +400,8 @@ void auto_threshold(struct jbig2ctx *ctx) {
 }
 
 
-void 
-printHashMap(map<unsigned int, list<int> > &hashedTemplates) {
+static void 
+print_hash_map(map<unsigned int, list<int> > &hashedTemplates) {
   std::map<unsigned int, list<int> >::iterator it;
   list<int>::iterator itRepresentants;
   for (it = hashedTemplates.begin(); it != hashedTemplates.end(); it++) {
@@ -412,8 +414,8 @@ printHashMap(map<unsigned int, list<int> > &hashedTemplates) {
   }
 }
 
-int 
-countHash(PIX * pix, std::map<unsigned int, std::list<int> > &hashMap, int templateIdx) {
+static int 
+count_hash(PIX * pix, std::map<unsigned int, std::list<int> > &hashMap, int templateIdx) {
   if (!pix) {
     fprintf(stderr, "no pix to count hash for\n");
     return 1;
@@ -458,7 +460,7 @@ auto_threshold_using_hash(struct jbig2ctx *ctx) {
   // creating hash value for each representant
   PIXA *jbPixa = ctx->classer->pixat;
   for (int i = 0; i < pixaGetCount(jbPixa); i++) {
-    countHash(jbPixa->pix[i], hashedTemplates, i);
+    count_hash(jbPixa->pix[i], hashedTemplates, i);
   }
   map<unsigned int, list<int> > newRepresentants; // where int is chosenOne and vector<int> are old ones which should be replaced by chosenOne (united with it)
   // going through representants with the same hash
@@ -496,12 +498,12 @@ auto_threshold_using_hash(struct jbig2ctx *ctx) {
   list<int> templatesToRemove;
   list<int>::iterator itRemove;
   for (it = newRepresentants.begin(); it != newRepresentants.end(); it++) {
-    if (!uniteTemplatesInTheList(ctx, it->first, it->second)) {
+    if (!unite_templates_in_the_list(ctx, it->first, it->second)) {
       templatesToRemove.merge(it->second);
     }
   }
 
-  if (removeTemplates(ctx, templatesToRemove)) {
+  if (remove_templates(ctx, templatesToRemove)) {
     fprintf(stderr, "warning: removing united templates wasn't fully succesfull");
   }
 }

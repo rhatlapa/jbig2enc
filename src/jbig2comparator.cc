@@ -46,8 +46,8 @@
  * Allocates matrix of preferred size
  * xSize, ySize ... dimensions of the matrix
  */
-l_uint32 ** 
-allocateMatrix(int xSize, int ySize) {
+static l_uint32 ** 
+allocate_matrix(int xSize, int ySize) {
   l_uint32 **matrix = new l_uint32*[xSize];
   for (int i = 0; i < xSize; i++) {
     matrix[i] = new l_uint32[ySize];
@@ -61,55 +61,17 @@ allocateMatrix(int xSize, int ySize) {
  * **matrix ... matrix which shall be freed from memory
  * xSize ...... number of rows in matrix
  */
-void 
-freeMatrix(l_uint32 **matrix, int xSize) {
+static void 
+free_matrix(l_uint32 **matrix, int xSize) {
   for (int i = 0; i < xSize; i++) {
     delete[] matrix[i];
   }
   delete[] matrix;
 }
 
-/* 
- * Print n as a binary number just for testing
- */
-void 
-printbitssimple(unsigned int n) {
-  unsigned int i;
-  i = 1<<(sizeof(n) * 8 - 1);
 
-  while (i > 0) {
-    if (n & i) {
-      fprintf(stderr,"1");
-    }
-    else {
-      fprintf(stderr,"0");
-    }
-    i >>= 1;
-  }
-}
-
-
-/* 
- * Print n as a binary number just for testing
- */
-void charprintbitssimple(char ch) {
-  unsigned int i;
-  i = 1<<(sizeof(ch) * 8 - 1);
-
-  while (i > 0) {
-    if (ch & i) {
-      fprintf(stderr,"1");
-    }
-    else {
-      fprintf(stderr,"0");
-    }
-    i >>= 1;
-  }
-}
-
-
-char * 
-intsToChars(PIX *pix) {
+static char * 
+ints_to_chars(PIX *pix) {
   l_uint32 h = pixGetHeight(pix);
   l_uint32 cpl = (pixGetWidth(pix)+7) / 8;
   fprintf(stderr, "cpl = %d\n", cpl);
@@ -136,7 +98,8 @@ intsToChars(PIX *pix) {
 /**
  * Prints pix bitmap to stderr
  */
-void print_pix(PIX *pix) {
+void 
+print_pix(PIX *pix) {
   if (pix == NULL) {
     fprintf(stderr, "Unable to write PIX");
   }
