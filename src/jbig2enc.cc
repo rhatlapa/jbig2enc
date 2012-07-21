@@ -140,23 +140,6 @@ jbig2_init(float thresh, float weight, int xres, int yres, bool full_headers,
   return ctx;
 }
 
-// causes stack overflow
-static void 
-reindexing(struct jbig2ctx *ctx, int const newIndex, int const oldIndex) {
-  if (!ctx) {
-    fprintf(stderr, "ctx not given");
-    return;
-  }
-
-  for (int i = 0; i < numaGetCount(ctx->classer->naclass); i++) {
-    int n;
-    numaGetIValue(ctx->classer->naclass, i, &n);
-    if (n == oldIndex) {
-      numaSetValue(ctx->classer->naclass, i, newIndex);
-    }
-  }
-}
-
 /**
  * Function for printing values in list separated by comma
  */
@@ -215,7 +198,7 @@ unite_templates_in_the_list(struct jbig2ctx *ctx, int newRepresentant, list<int>
       fprintf(stderr, "template: %d out of range", (*it));
       return 1;
     }
-    //reindexing(ctx, newRepresentant, secondTemplate);
+    // reindexing
     for (int i = 0; i < ctx->classer->naclass->n; i++) {
       int n;
       numaGetIValue(ctx->classer->naclass, i, &n);
@@ -257,7 +240,7 @@ remove_templates(jbig2ctx * ctx, std::list<int> &templatesToRemove) {
   // index ... represents pointer to dictionary (PIXAT) and is processed in reverse
   // it ... represents pointer to actual representant in list which should be removed
   int last = templatesToRemove.back();
-  for (int index = (pixat->n - 1); ((index >= (*it)) && (it != templatesToRemove.end())); index--) {
+  for (int index = (pixat->n - 1); ((it != templatesToRemove.end()) && (index >= (*it))); index--) {
 
     // check if we assign PIX which should not be removed
     if (index == last) {
@@ -281,7 +264,7 @@ remove_templates(jbig2ctx * ctx, std::list<int> &templatesToRemove) {
           fprintf(stderr, "uniting - unable to replace pix %d in pixat\n", newIndex);
           return 2;
         }
-        //reindexing(ctx, index, newIndex);
+        // reindexing
         for (int i = 0; i < ctx->classer->naclass->n; i++) {
           int n;
           numaGetIValue(ctx->classer->naclass, i, &n);
@@ -317,17 +300,7 @@ unite_templates_with_indexes(struct jbig2ctx *ctx, int firstTemplateIndex, int s
     return 1;
   }
 
-/*
-  char firstbuf[128];
-  sprintf(firstbuf, "uniting%dwith%d-first.png", firstTemplateIndex, secondTemplateIndex);
-  pixWrite(firstbuf, ctx->classer->pixat->pix[firstTemplateIndex], IFF_PNG);
- 
-  char secondbuf[128];
-  sprintf(secondbuf, "uniting%dwith%d-second.png", firstTemplateIndex, secondTemplateIndex);
-  pixWrite(secondbuf, ctx->classer->pixat->pix[secondTemplateIndex], IFF_PNG);
-*/
-
-  //reindexing(ctx, secondTemplateIndex, firstTemplateIndex);
+  // reindexing
   for (int i = 0; i < ctx->classer->naclass->n; i++) {
     int n;
     numaGetIValue(ctx->classer->naclass, i, &n);
@@ -355,6 +328,8 @@ unite_templates_with_indexes(struct jbig2ctx *ctx, int firstTemplateIndex, int s
       fprintf(stderr, "uniting - unable to replace pix %d\n", secondTemplateIndex);
       return 2;
     }
+
+    // reindexing
     for (int i = 0; i < ctx->classer->naclass->n; i++) {
       int n;
       numaGetIValue(ctx->classer->naclass, i, &n);
@@ -362,8 +337,6 @@ unite_templates_with_indexes(struct jbig2ctx *ctx, int firstTemplateIndex, int s
         numaSetValue(ctx->classer->naclass, i, secondTemplateIndex);
       }
     }
-
-    //reindexing(ctx, index, secondTemplateIndex);
   }
 
   if (pixaRemovePix(ctx->classer->pixat, index)) {
@@ -462,6 +435,11 @@ auto_threshold_using_hash(struct jbig2ctx *ctx) {
   for (int i = 0; i < pixaGetCount(jbPixa); i++) {
     count_hash(jbPixa->pix[i], hashedTemplates, i);
   }
+
+  #ifdef HASH_DEBUG
+    print_hash_map(hashedTemplates);
+  #endif
+
   map<unsigned int, list<int> > newRepresentants; // where int is chosenOne and vector<int> are old ones which should be replaced by chosenOne (united with it)
   // going through representants with the same hash
   std::map<unsigned int, list<int> >::iterator it;
@@ -477,10 +455,10 @@ auto_threshold_using_hash(struct jbig2ctx *ctx) {
       for (++itSecondTemplate; itSecondTemplate != it->second.end();) {
         if (are_equivalent(jbPixa->pix[(*itFirstTemplate)], jbPixa->pix[(*itSecondTemplate)])) {
 
-#ifdef NDEBUG
+#ifdef UNIFICATION_DEBUGING
           fprintf(stderr, "Found PIXes recognized as equivalent");
-          printPix(jbPixa->pix[(*itFirstTemplate)]);
-          printPix(jbPixa->pix[(*itSecondTemplate)]);
+          print_pix(jbPixa->pix[(*itFirstTemplate)]);
+          print_pix(jbPixa->pix[(*itSecondTemplate)]);
 #endif
           // unite templates without removing (just reindexing) but add to array for later remove
           templates.push_back((*itSecondTemplate));
