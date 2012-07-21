@@ -436,7 +436,7 @@ auto_threshold_using_hash(struct jbig2ctx *ctx) {
     count_hash(jbPixa->pix[i], hashedTemplates, i);
   }
 
-  #ifdef HASH_DEBUG
+  #ifdef HASH_DEBUGING
     print_hash_map(hashedTemplates);
   #endif
 
