@@ -43,59 +43,6 @@
 
 
 /**
- * Allocates matrix of preferred size
- * xSize, ySize ... dimensions of the matrix
- */
-static l_uint32 ** 
-allocate_matrix(int xSize, int ySize) {
-  l_uint32 **matrix = new l_uint32*[xSize];
-  for (int i = 0; i < xSize; i++) {
-    matrix[i] = new l_uint32[ySize];
-  }
-  return matrix;
-}
-
-/**
- * Frees memory used by the matrix
- *
- * **matrix ... matrix which shall be freed from memory
- * xSize ...... number of rows in matrix
- */
-static void 
-free_matrix(l_uint32 **matrix, int xSize) {
-  for (int i = 0; i < xSize; i++) {
-    delete[] matrix[i];
-  }
-  delete[] matrix;
-}
-
-
-static char * 
-ints_to_chars(PIX *pix) {
-  l_uint32 h = pixGetHeight(pix);
-  l_uint32 cpl = (pixGetWidth(pix)+7) / 8;
-  fprintf(stderr, "cpl = %d\n", cpl);
-  l_uint32 wpl = pixGetWpl(pix);
-  l_uint32 *dataAsInts = pixGetData(pix);
-  char * dataAsChars;
-  dataAsChars = (char*)calloc((h*cpl)+1,sizeof(char));
-  int position = 0;
-  for (l_uint16 i=0; i < h; i++) {
-    for (l_uint16 j=0; j<wpl; j++) {
-      l_uint32 num = dataAsInts[i*wpl+j];
-      dataAsChars[position++] = (char)((num >> 24) & 0xFF);
-      dataAsChars[position++] = (char)((num >> 16) & 0xFF);
-      dataAsChars[position++] = (char)((num >> 8) & 0xFF);
-      dataAsChars[position++] = (char)(num & 0xFF);
-    }
-    position -= ((wpl*4) - cpl);
-  }
-  dataAsChars[position] = '\0';
-  return dataAsChars;
-}
-
-
-/**
  * Prints pix bitmap to stderr
  */
 void 

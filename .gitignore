@@ -20,6 +20,8 @@ Release*
 *.tiff
 *.tif
 *.exe
+*.jb
+*.jb2
 .hg*
 *m4*
 config.*

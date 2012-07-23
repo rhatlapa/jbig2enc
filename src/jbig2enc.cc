@@ -153,6 +153,21 @@ print_list(std::list<int> &listToPrint) {
 }
 
 /**
+ * Function for printing values in map
+ */
+static void 
+print_hash_map(map<unsigned int, list<int> > &hashedTemplates) {
+  std::map<unsigned int, list<int> >::iterator it;
+  list<int>::iterator itRepresentants;
+  for (it = hashedTemplates.begin(); it != hashedTemplates.end(); it++) {
+    fprintf(stderr, "for hash %d:\n", it->first);
+    fprintf(stderr, "  -- ");
+    print_list(it->second);
+  }
+}
+
+
+/**
  * unites templates of the same character to chosen charater template
  * *ctx ............... structure containing templates of symbols
  * targetChar ......... char that will remain (united char will be replaced by
@@ -372,20 +387,6 @@ void auto_threshold(struct jbig2ctx *ctx) {
   }
 }
 
-
-static void 
-print_hash_map(map<unsigned int, list<int> > &hashedTemplates) {
-  std::map<unsigned int, list<int> >::iterator it;
-  list<int>::iterator itRepresentants;
-  for (it = hashedTemplates.begin(); it != hashedTemplates.end(); it++) {
-    fprintf(stderr, "for hash %d:\n", it->first);
-    fprintf(stderr, "  -- ");
-    for (itRepresentants = it->second.begin(); itRepresentants != it->second.end(); itRepresentants++) {
-      fprintf(stderr, "%d ", (*itRepresentants));
-    }
-    fprintf(stderr, "\n");
-  }
-}
 
 static int 
 count_hash(PIX * pix, std::map<unsigned int, std::list<int> > &hashMap, int templateIdx) {
